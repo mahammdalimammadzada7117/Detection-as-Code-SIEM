@@ -9,42 +9,20 @@ SPLUNK_CONF = {
 }
 
 def sync():
-    # Hazırda olduğumuz qovluğu tapırıq
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Bir üst qovluğa çıxıb splunk-rules qovluğuna gedirik
     path = os.path.abspath(os.path.join(current_dir, "..", "splunk-rules"))
     
-    url = f"https://{SPLUNK_CONF['host']}:{SPLUNK_CONF['port']}/servicesNS/admin/search/saved/searches"
+    # ƏN SADƏ VƏ QLOBAL ÜNVAN
+    url = f"https://{SPLUNK_CONF['host']}:{SPLUNK_CONF['port']}/services/saved/searches?output_mode=json"
     
     print(f"--- SOC Automation: API Sync Starting ---")
-    print(f"DEBUG: Qovluq axtarılır: {path}")
-
-    if not os.path.exists(path):
-        print(f"❌ ERROR: Qovluq tapılmadı!")
-        return
-
-    # Siyahını götürürük
-    all_files = os.listdir(path)
-    conf_files = [f for f in all_files if f.endswith(".conf")]
     
-    print(f"DEBUG: Tapılan cəmi fayl sayı: {len(all_files)}")
-    print(f"DEBUG: Tapılan .conf fayl sayı: {len(conf_files)}")
-
-    if len(conf_files) == 0:
-        print("⚠️ Xəbərdarlıq: .conf faylı tapılmadı, qovluq boş ola bilər.")
-        return
-
     cfg = configparser.ConfigParser(interpolation=None)
+    conf_files = [f for f in os.listdir(path) if f.endswith(".conf")]
 
     for fn in conf_files:
         try:
-            full_path = os.path.join(path, fn)
-            cfg.read(full_path)
-            
-            if not cfg.sections():
-                print(f"⚠️ {fn} faylı boşdur və ya formatı səhvdir.")
-                continue
-                
+            cfg.read(os.path.join(path, fn))
             name = cfg.sections()[0]
             query = cfg[name]['search']
             
@@ -57,20 +35,24 @@ def sync():
                 "dispatch.latest_time": "now"
             }
             
+            # Həm Create, həm Update üçün tək sorğu (Splunk bəzən 409 verəndə update tələb edir)
             res = requests.post(url, data=payload, auth=(SPLUNK_CONF['user'], SPLUNK_CONF['password']), verify=False)
             
-            if res.status_code == 201:
-                print(f"✅ Created: {name}")
-            elif res.status_code in [400, 409]:
-                # Update ssenarisi
-                update_url = f"{url}/{name}"
-                requests.post(update_url, data=payload, auth=(SPLUNK_CONF['user'], SPLUNK_CONF['password']), verify=False)
-                print(f"🔄 Updated: {name}")
+            if res.status_code in [201, 200]:
+                print(f"✅ SUCCESS: {name}")
+            elif res.status_code == 409:
+                # Əgər artıq varsa, UPDATE etmək üçün sonuna adını əlavə edirik
+                update_url = f"https://{SPLUNK_CONF['host']}:{SPLUNK_CONF['port']}/services/saved/searches/{name}?output_mode=json"
+                res_up = requests.post(update_url, data=payload, auth=(SPLUNK_CONF['user'], SPLUNK_CONF['password']), verify=False)
+                if res_up.status_code == 200:
+                    print(f"🔄 UPDATED: {name}")
+                else:
+                    print(f"❌ UPDATE FAILED: {name}")
             else:
-                print(f"❌ Failed: {name} (Status: {res.status_code})")
+                print(f"❌ FAILED: {name} (Status: {res.status_code})")
                 
         except Exception as e:
-            print(f"⚠️ Error in {fn}: {e}")
+            print(f"⚠️ Error: {e}")
 
 if __name__ == "__main__":
     sync()
