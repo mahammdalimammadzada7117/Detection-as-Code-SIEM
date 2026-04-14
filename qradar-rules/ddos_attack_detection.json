@@ -1,0 +1,13 @@
+{
+  "rule_name": "Inbound DDoS Attack Detected",
+  "mitre_technique": "T1498",
+  "qradar_tests": [
+    "when an event matches any of these BB:CategoryDefinition: DDoS Attack Events",
+    "and when eyni QID üçün 5 dəqiqədə 1000-dən çox hadisə baş verərsə"
+  ],
+  "response": {
+    "ensure_offense": true,
+    "index_type": "Destination IP",
+    "severity": 9
+  }
+}
