@@ -1,0 +1,15 @@
+{
+  "rule_name": "Suspicious Persistence via Scheduled Task",
+  "mitre_technique": "T1053.005",
+  "qradar_tests": [
+    "when the event matches Event ID = 4698 AQL filter query",
+    "when the event matches username NOT IN ('Administrator', 'System') AQL filter query"
+  ]
+}{
+  "rule_name": "Suspicious Persistence via Scheduled Task",
+  "mitre_technique": "T1053.005",
+  "qradar_tests": [
+    "when the event matches Event ID = 4698 AQL filter query",
+    "when the event matches username NOT IN ('Administrator', 'System') AQL filter query"
+  ]
+}
