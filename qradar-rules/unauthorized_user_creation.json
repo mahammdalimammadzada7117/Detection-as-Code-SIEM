@@ -1,0 +1,12 @@
+{
+  "rule_name": "Unauthorized Local User Creation",
+  "mitre_technique": "T1136.001",
+  "qradar_tests": [
+    "when the event matches Event ID = 4720 AQL filter query",
+    "and when the event matches username NOT IN ('Administrator', 'System') AQL filter query"
+  ],
+  "response": {
+    "offense_indexing": "Username",
+    "severity": 8
+  }
+}
