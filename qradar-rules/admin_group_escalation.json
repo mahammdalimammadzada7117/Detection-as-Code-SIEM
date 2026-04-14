@@ -1,0 +1,8 @@
+{
+  "rule_name": "User Added to High Privileged Group",
+  "mitre_technique": "T1098",
+  "qradar_tests": [
+    "when the event matches Event ID = 4732 AQL filter query",
+    "and when the event matches Target Group Name is 'Administrators'"
+  ]
+}
