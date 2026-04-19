@@ -1,9 +1,0 @@
-{
-  "rule_name": "Credential Dumping via LSASS access",
-  "mitre_technique": "T1003.001",
-  "qradar_tests": [
-    "when the event matches Event ID = 10 (Sysmon) AQL filter query",
-    "and when TargetImage matches 'C:\\Windows\\System32\\lsass.exe'",
-    "and when GrantedAccess matches '0x1410' or '0x1010'"
-  ]
-}
