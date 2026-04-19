@@ -1,8 +1,0 @@
-{
-  "rule_name": "ICMP Flood / Ping Sweep Attack",
-  "mitre_technique": "T1498.001",
-  "qradar_tests": [
-    "when the IP protocol is ICMP",
-    "and when at least 100 events are seen with the same Source IP in 1 minutes"
-  ]
-}
