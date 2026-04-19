@@ -1,8 +1,0 @@
-{
-  "rule_name": "Windows Audit Log Cleared",
-  "mitre_technique": "T1070.001",
-  "qradar_tests": [
-    "when the event matches Event ID = 1102 AQL filter query"
-  ],
-  "response": { "severity": 10 }
-}
