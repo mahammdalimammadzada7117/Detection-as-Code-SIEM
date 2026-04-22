@@ -1,1 +1,9 @@
-
+index=* host=webserver source="/var/lib/docker/containers/*-json.log"
+| spath path=log output=raw_message
+| eval decoded_log = urldecode(raw_message)
+| rex field=decoded_log "(?i)(?<SQL_Key_Word>UNION|SELECT|INSERT|DELETE|DROP|OR\s+1=1|--|;)"
+| eval Severity = if(isnotnull(SQL_Key_Word), "CRITICAL", "INFO")
+| where Severity="CRITICAL"
+| table _time, Severity, SQL_Key_Word, decoded_log
+| rename decoded_log as "SQL Attack Log", SQL_Key_Word as "Detected Keyword"
+| sort - _time
